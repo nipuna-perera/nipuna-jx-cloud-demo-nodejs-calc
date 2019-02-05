@@ -1,0 +1,30 @@
+apiVersion: skaffold/v1beta2
+kind: Config
+build:
+  artifacts:
+  - image: changeme
+    context: .
+    docker: {}
+  tagPolicy:
+    envTemplate:
+      template: '{{.DOCKER_REGISTRY}}/npradeeptha/nipuna-jx-cloud-demo-nodejs-calc:{{.VERSION}}'
+  local: {}
+deploy:
+  kubectl: {}
+profiles:
+- name: dev
+  build:
+    artifacts:
+    - docker: {}
+    tagPolicy:
+      envTemplate:
+        template: '{{.DOCKER_REGISTRY}}/npradeeptha/nipuna-jx-cloud-demo-nodejs-calc:{{.DIGEST_HEX}}'
+    local: {}
+  deploy:
+    helm:
+      releases:
+      - name: nipuna-jx-cloud-demo-nodejs-calc
+        chartPath: charts/nipuna-jx-cloud-demo-nodejs-calc
+        setValueTemplates:
+          image.repository: '{{.DOCKER_REGISTRY}}/npradeeptha/nipuna-jx-cloud-demo-nodejs-calc'
+          image.tag: '{{.DIGEST_HEX}}'
